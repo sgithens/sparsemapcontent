@@ -26,13 +26,17 @@ public class MongoUtilsTest extends TestCase {
 	private static final String escaped = "dots" + MongoUtils.MONGO_FIELD_DOT_REPLACEMENT + "and"
 									+ MongoUtils.MONGO_FIELD_DOLLAR_REPLACEMENT + "_x";
 
-	@Test
-	public void testCleanPropertiesPrunesNulls(){
-		Map<String,Object> props = new HashMap<String, Object>();
-		props.put("NULL", null);
-		DBObject cleaned = MongoUtils.cleanPropertiesForInsert(props);
-		assertTrue(cleaned.keySet().isEmpty());
-	}
+	// KERN-2519 Commenting out this unit test as it appears that null's are sometimes used
+	// to indicate the removal of keys. The JDBC driver also seems to check for null's in 
+	// addition to RemoveProperty objects. 
+	// 
+	//@Test
+	//public void testCleanPropertiesPrunesNulls(){
+	//	Map<String,Object> props = new HashMap<String, Object>();
+	//	props.put("NULL", null);
+	//	DBObject cleaned = MongoUtils.cleanPropertiesForInsert(props);
+	//	assertTrue(cleaned.keySet().isEmpty());
+	//}
 
 	@Test
 	public void testCleanPropertiesHandlesRemoveProperty(){

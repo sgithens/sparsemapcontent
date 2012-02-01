@@ -55,7 +55,7 @@ public class MongoUtils {
 			Object value = props.get(key);
 			key = escapeFieldName(key);
 			// Replace the sparse RemoveProperty with the Mongo $unset.
-			if (value instanceof RemoveProperty){
+			if (value == null || value instanceof RemoveProperty){
 				removeFields.put(key, 1);
 			}
 			else if (value instanceof Calendar || value instanceof GregorianCalendar){
