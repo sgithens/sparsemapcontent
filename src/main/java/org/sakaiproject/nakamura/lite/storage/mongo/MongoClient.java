@@ -153,12 +153,14 @@ public class MongoClient implements StorageClient, RowHasher {
 		columnFamily = columnFamily.toLowerCase();
 		HashMap<String,Object> mutableValues = new HashMap<String,Object>(values);
 		
+		/* Commenting out based on Erik's patch
+		 * https://github.com/efroese/sparsemapcontent/commit/040b5bac41e2133d335e45077cc5f1581beb4731
 		if (values.containsKey(InternalContent.DELETED_FIELD) 
 				&& values.get(InternalContent.DELETED_FIELD).equals(InternalContent.TRUE)){
 			this.remove(keySpace, columnFamily, key);
 			return;
 		}
-
+		*/
 		// rewrite _id => MongoClient.MONGO_INTERNAL_SPARSE_UUID_FIELD
 		if (mutableValues.containsKey(MongoClient.MONGO_INTERNAL_ID_FIELD)){
 			mutableValues.put(MongoClient.MONGO_INTERNAL_SPARSE_UUID_FIELD,
@@ -208,10 +210,15 @@ public class MongoClient implements StorageClient, RowHasher {
 	throws StorageClientException {
 		columnFamily = columnFamily.toLowerCase();
 		DBCollection collection = mongodb.getCollection(columnFamily);
-		collection.remove(new BasicDBObject(MONGO_INTERNAL_SPARSE_UUID_FIELD, key));
+		// Eriks delete patch   collection.remove(new BasicDBObject(MONGO_INTERNAL_SPARSE_UUID_FIELD, key));
 		
+		// Soft delete content
 		if (columnFamily.equals((String)props.get(MongoClientPool.PROP_CONTENT_COLLECTION))){
-			collection.remove(new BasicDBObject(InternalContent.STRUCTURE_UUID_FIELD, key));
+			// Eriks delete patch collection.remove(new BasicDBObject(InternalContent.STRUCTURE_UUID_FIELD, key));
+			insert(keySpace, columnFamily, key, ImmutableMap.of(InternalContent.DELETED_FIELD, (Object)InternalContent.TRUE), false);
+		}
+		else {
+			collection.remove(new BasicDBObject(MONGO_INTERNAL_SPARSE_UUID_FIELD, key));
 		}
 		log.debug("remove {}:{}:{}", new Object[]{keySpace, columnFamily, key});
 	}
